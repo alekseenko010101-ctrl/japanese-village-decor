@@ -16,7 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Reconstruct source archive
+      - name: Reconstruct and patch source
         shell: bash
         run: |
           cat watering-can-payload/part-*.b64 | base64 --decode > watering-can-source.zip
@@ -24,6 +24,7 @@ jobs:
           rm -rf watering-can-project
           mkdir watering-can-project
           unzip -q watering-can-source.zip -d watering-can-project
+          rsync -a watering-can-patches/ watering-can-project/mod/
 
       - name: Set up Java 25
         uses: actions/setup-java@v4
