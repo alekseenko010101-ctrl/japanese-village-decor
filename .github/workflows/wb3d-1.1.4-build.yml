@@ -3,7 +3,7 @@ name: Build Wooden Bucket 3D 1.1.4
 on:
   push:
     branches:
-      - wb3d-fix-1-1-3
+      - main
   workflow_dispatch:
 
 permissions:
@@ -13,8 +13,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout build branch
         uses: actions/checkout@v4
+        with:
+          ref: wb3d-fix-1-1-3
 
       - name: Reconstruct project
         shell: bash
