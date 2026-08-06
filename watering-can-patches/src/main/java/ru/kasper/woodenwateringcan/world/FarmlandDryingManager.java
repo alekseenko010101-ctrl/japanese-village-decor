@@ -23,7 +23,7 @@ public final class FarmlandDryingManager {
     }
 
     public static void initialize() {
-        ServerTickEvents.END_WORLD_TICK.register(FarmlandDryingManager::tickWorld);
+        ServerTickEvents.END_LEVEL_TICK.register(FarmlandDryingManager::tickWorld);
     }
 
     public static void track(ServerLevel level, BlockPos pos) {
@@ -31,7 +31,7 @@ public final class FarmlandDryingManager {
     }
 
     private static void tickWorld(ServerLevel level) {
-        long now = level.getDayTime();
+        long now = level.getOverworldClockTime();
         Long previous = LAST_DAY_TIME.put(level, now);
         if (previous == null) {
             return;
