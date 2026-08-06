@@ -14,6 +14,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.FarmlandBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
+import ru.kasper.woodenwateringcan.world.FarmlandDryingManager;
+
 @Mixin(FarmlandBlock.class)
 public abstract class FarmBlockMixin {
     @Inject(method = "turnToDirt", at = @At("HEAD"), cancellable = true)
@@ -37,9 +39,8 @@ public abstract class FarmBlockMixin {
             RandomSource random,
             CallbackInfo ci
     ) {
-        int moisture = state.getValue(FarmlandBlock.MOISTURE);
-        if (moisture > 0) {
-            level.setBlockAndUpdate(pos, state.setValue(FarmlandBlock.MOISTURE, moisture - 1));
+        if (state.getValue(FarmlandBlock.MOISTURE) > 0) {
+            FarmlandDryingManager.track(level, pos);
         }
         ci.cancel();
     }

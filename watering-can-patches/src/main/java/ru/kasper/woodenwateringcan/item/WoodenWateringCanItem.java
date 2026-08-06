@@ -30,6 +30,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import ru.kasper.woodenwateringcan.component.ModComponents;
+import ru.kasper.woodenwateringcan.world.FarmlandDryingManager;
 
 public final class WoodenWateringCanItem extends BlockItem {
     public static final int MAX_WATER = 5;
@@ -42,7 +43,6 @@ public final class WoodenWateringCanItem extends BlockItem {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
-
         if (hit.getType() != HitResult.Type.BLOCK) {
             return InteractionResult.PASS;
         }
@@ -65,7 +65,6 @@ public final class WoodenWateringCanItem extends BlockItem {
             level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.PLAYERS, 0.9F, 1.15F);
             player.swing(hand, true);
         }
-
         return InteractionResult.SUCCESS;
     }
 
@@ -84,7 +83,6 @@ public final class WoodenWateringCanItem extends BlockItem {
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
         ItemStack stack = context.getItemInHand();
-
         if (!state.is(Blocks.FARMLAND)) {
             return InteractionResult.PASS;
         }
@@ -107,12 +105,12 @@ public final class WoodenWateringCanItem extends BlockItem {
 
         if (!level.isClientSide()) {
             level.setBlockAndUpdate(pos, state.setValue(FarmlandBlock.MOISTURE, 7));
+            FarmlandDryingManager.track((ServerLevel) level, pos);
             setWater(stack, currentWater - 1);
             level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS, 0.75F, 1.3F);
             spawnWateringParticles((ServerLevel) level, pos, context.getClickedFace());
             player.swing(context.getHand(), true);
         }
-
         return InteractionResult.SUCCESS;
     }
 
@@ -120,7 +118,6 @@ public final class WoodenWateringCanItem extends BlockItem {
         double x = pos.getX() + 0.5 + face.getStepX() * 0.12;
         double y = pos.getY() + 1.08;
         double z = pos.getZ() + 0.5 + face.getStepZ() * 0.12;
-
         level.sendParticles(ParticleTypes.SPLASH, x, y, z, 18, 0.34, 0.08, 0.34, 0.08);
         level.sendParticles(ParticleTypes.FALLING_WATER, x, y + 0.18, z, 8, 0.28, 0.05, 0.28, 0.02);
     }
