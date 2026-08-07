@@ -15,7 +15,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BoneMealItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
@@ -80,14 +82,52 @@ public final class WoodenWateringCanItem extends BlockItem {
         }
 
         Level level = context.getLevel();
-        BlockPos pos = context.getClickedPos();
-        BlockState state = level.getBlockState(pos);
+        BlockPos clickedPos = context.getClickedPos();
+        BlockState clickedState = level.getBlockState(clickedPos);
         ItemStack stack = context.getItemInHand();
-        if (!state.is(Blocks.FARMLAND)) {
+        int currentWater = water(stack);
+
+        // Watering a grass block behaves like using bone meal on it.
+        if (clickedState.is(Blocks.GRASS_BLOCK)) {
+            if (currentWater <= 0) {
+                if (!level.isClientSide()) {
+                    player.sendOverlayMessage(Component.translatable("message.wooden_watering_can.empty"));
+                }
+                return InteractionResult.SUCCESS;
+            }
+
+            if (!level.isClientSide()) {
+                ItemStack fakeBoneMeal = new ItemStack(Items.BONE_MEAL);
+                if (BoneMealItem.growCrop(fakeBoneMeal, level, clickedPos)) {
+                    setWater(stack, currentWater - 1);
+                    level.playSound(null, clickedPos, SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS, 0.7F, 1.35F);
+                    level.levelEvent(1505, clickedPos, 15);
+                    spawnWateringParticles((ServerLevel) level, clickedPos, Direction.UP);
+                    player.swing(context.getHand(), true);
+                }
+            }
+            return InteractionResult.SUCCESS;
+        }
+
+        // Clicking farmland directly or clicking a crop/block standing on farmland waters the farmland below.
+        BlockPos farmlandPos = null;
+        BlockState farmlandState = null;
+        if (clickedState.is(Blocks.FARMLAND)) {
+            farmlandPos = clickedPos;
+            farmlandState = clickedState;
+        } else {
+            BlockPos below = clickedPos.below();
+            BlockState belowState = level.getBlockState(below);
+            if (belowState.is(Blocks.FARMLAND)) {
+                farmlandPos = below;
+                farmlandState = belowState;
+            }
+        }
+
+        if (farmlandPos == null) {
             return InteractionResult.PASS;
         }
 
-        int currentWater = water(stack);
         if (currentWater <= 0) {
             if (!level.isClientSide()) {
                 player.sendOverlayMessage(Component.translatable("message.wooden_watering_can.empty"));
@@ -95,7 +135,7 @@ public final class WoodenWateringCanItem extends BlockItem {
             return InteractionResult.SUCCESS;
         }
 
-        int moisture = state.getValue(FarmlandBlock.MOISTURE);
+        int moisture = farmlandState.getValue(FarmlandBlock.MOISTURE);
         if (moisture >= 7) {
             if (!level.isClientSide()) {
                 player.sendOverlayMessage(Component.translatable("message.wooden_watering_can.already_wet"));
@@ -104,17 +144,17 @@ public final class WoodenWateringCanItem extends BlockItem {
         }
 
         if (!level.isClientSide()) {
-            level.setBlockAndUpdate(pos, state.setValue(FarmlandBlock.MOISTURE, 7));
-            FarmlandDryingManager.track((ServerLevel) level, pos);
+            level.setBlockAndUpdate(farmlandPos, farmlandState.setValue(FarmlandBlock.MOISTURE, 7));
+            FarmlandDryingManager.track((ServerLevel) level, farmlandPos);
             setWater(stack, currentWater - 1);
-            level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS, 0.75F, 1.3F);
-            spawnWateringParticles((ServerLevel) level, pos, context.getClickedFace());
+            level.playSound(null, farmlandPos, SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS, 0.75F, 1.3F);
+            spawnWateringParticles((ServerLevel) level, farmlandPos, Direction.UP);
             player.swing(context.getHand(), true);
         }
         return InteractionResult.SUCCESS;
     }
 
-    private static void spawnWateringParticles(ServerLevel level, BlockPos pos, Direction face) {
+    public static void spawnWateringParticles(ServerLevel level, BlockPos pos, Direction face) {
         double x = pos.getX() + 0.5 + face.getStepX() * 0.12;
         double y = pos.getY() + 1.08;
         double z = pos.getZ() + 0.5 + face.getStepZ() * 0.12;
