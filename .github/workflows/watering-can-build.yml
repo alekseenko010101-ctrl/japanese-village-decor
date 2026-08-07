@@ -1,9 +1,9 @@
-name: Build Wooden Watering Can
+name: Build Wooden Watering Can 1.0.3
 
 on:
   push:
     branches:
-      - watering-can-build-26-2
+      - watering-can-1-0-3
   workflow_dispatch:
 
 permissions:
@@ -41,16 +41,26 @@ jobs:
         working-directory: watering-can-project/mod
         run: gradle clean build --no-daemon --stacktrace
 
-      - name: Collect distributable JAR
+      - name: Collect and verify distributable JAR
         shell: bash
         run: |
+          set -euo pipefail
           mkdir -p output
-          find watering-can-project/mod/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' -exec cp {} output/ \;
-          ls -la output
+          JAR=$(find watering-can-project/mod/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' | head -n 1)
+          cp "$JAR" output/wooden-watering-can-1.0.3.jar
+          unzip -t output/wooden-watering-can-1.0.3.jar
+          javap -classpath output/wooden-watering-can-1.0.3.jar -p -c ru.kasper.woodenwateringcan.item.WoodenWateringCanItem > item.javap
+          javap -classpath output/wooden-watering-can-1.0.3.jar -p -c ru.kasper.woodenwateringcan.interaction.WoodenBucketFillHandler > bucket.javap
+          grep -q 'BoneMealItem' item.javap
+          grep -q 'FARMLAND' item.javap
+          grep -q 'BUCKET_FILL' bucket.javap
+          grep -q 'SPLASH' bucket.javap
+          test -f <(unzip -p output/wooden-watering-can-1.0.3.jar data/wooden_watering_can/recipe/wooden_watering_can.json)
+          unzip -p output/wooden-watering-can-1.0.3.jar fabric.mod.json | grep -q '1.0.3'
 
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
-          name: wooden-watering-can-fabric-26.2
-          path: output/*.jar
+          name: wooden-watering-can-1.0.3
+          path: output/wooden-watering-can-1.0.3.jar
           if-no-files-found: error
