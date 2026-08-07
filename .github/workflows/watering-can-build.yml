@@ -55,7 +55,8 @@ jobs:
           grep -q 'FARMLAND' item.javap
           grep -q 'BUCKET_FILL' bucket.javap
           grep -q 'SPLASH' bucket.javap
-          test -f <(unzip -p output/wooden-watering-can-1.0.3.jar data/wooden_watering_can/recipe/wooden_watering_can.json)
+          unzip -p output/wooden-watering-can-1.0.3.jar data/wooden_watering_can/recipe/wooden_watering_can.json > /tmp/recipe.json
+          test -s /tmp/recipe.json
           unzip -p output/wooden-watering-can-1.0.3.jar fabric.mod.json | grep -q '1.0.3'
 
       - name: Upload JAR
