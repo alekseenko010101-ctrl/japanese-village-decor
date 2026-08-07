@@ -1,9 +1,9 @@
-name: Build Wooden Bucket 3D 1.1.6 Patch
+name: Build Wooden Bucket 3D 1.1.7 Patch
 
 on:
   push:
     branches:
-      - wb3d-1-1-5
+      - wb3d-1-1-7
   workflow_dispatch:
 
 permissions:
@@ -16,14 +16,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Reconstruct 1.1.4 build project
+      - name: Reconstruct build project
         shell: bash
         run: |
           cat wb3d-1.1.4-payload/part-*.b64 | base64 --decode > wb114-project.zip
           echo "f1b420644748453c15e844981a31a8b758b0e213baf359597e2accfcb093e3a3  wb114-project.zip" | sha256sum -c -
           unzip -t wb114-project.zip
           unzip -q wb114-project.zip
-          install -D wb3d-1.1.6-src/WoodenBucketBottleMechanics.java wb114/src/main/java/dev/kasper/woodenbucket3d/WoodenBucketBottleMechanics.java
+          install -D wb3d-1.1.7-src/WoodenBucketBottleMechanics.java wb114/src/main/java/dev/kasper/woodenbucket3d/WoodenBucketBottleMechanics.java
+          install -D wb3d-1.1.7-src/WoodenBucketEntityMechanics.java wb114/src/main/java/dev/kasper/woodenbucket3d/WoodenBucketEntityMechanics.java
 
       - name: Set up Java 25
         uses: actions/setup-java@v4
@@ -45,17 +46,21 @@ jobs:
         run: |
           set -euo pipefail
           PATCH_JAR=$(find wb114/build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' | head -n 1)
-          cp "$PATCH_JAR" wooden-bucket-3d-1.1.6-patch.jar
-          unzip -t wooden-bucket-3d-1.1.6-patch.jar
-          javap -classpath wooden-bucket-3d-1.1.6-patch.jar -p -c dev.kasper.woodenbucket3d.WoodenBucketBottleMechanics > mechanics.javap
-          grep -q 'wooden_water_bucket_level_2' mechanics.javap
-          grep -q 'wooden_milk_bucket_level_1' mechanics.javap
-          grep -q 'wooden_powder_snow_bucket_level_2' mechanics.javap
-          ! grep -q 'wooden_fish_bottle' mechanics.javap
+          cp "$PATCH_JAR" wooden-bucket-3d-1.1.7-patch.jar
+          unzip -t wooden-bucket-3d-1.1.7-patch.jar
+          javap -classpath wooden-bucket-3d-1.1.7-patch.jar -p -c dev.kasper.woodenbucket3d.WoodenBucketEntityMechanics > entity.javap
+          javap -classpath wooden-bucket-3d-1.1.7-patch.jar -p -c dev.kasper.woodenbucket3d.WoodenBucketBottleMechanics > bottle.javap
+          grep -q 'getBucketItemStack' entity.javap
+          grep -q 'saveToBucketTag' entity.javap
+          grep -q 'transmuteCopy' entity.javap
+          grep -q 'COD_BUCKET' bottle.javap
+          grep -q 'SALMON_BUCKET' bottle.javap
+          grep -q 'PUFFERFISH_BUCKET' bottle.javap
+          grep -q 'TROPICAL_FISH_BUCKET' bottle.javap
 
       - name: Upload patch JAR
         uses: actions/upload-artifact@v4
         with:
-          name: wooden-bucket-3d-1.1.6-patch
-          path: wooden-bucket-3d-1.1.6-patch.jar
+          name: wooden-bucket-3d-1.1.7-patch
+          path: wooden-bucket-3d-1.1.7-patch.jar
           if-no-files-found: error
