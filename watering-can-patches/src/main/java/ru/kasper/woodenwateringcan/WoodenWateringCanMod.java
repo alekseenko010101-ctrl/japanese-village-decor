@@ -17,8 +17,9 @@ import net.minecraft.world.level.block.state.BlockBehaviour;
 
 import ru.kasper.woodenwateringcan.block.WoodenWateringCanBlock;
 import ru.kasper.woodenwateringcan.component.ModComponents;
-import ru.kasper.woodenwateringcan.item.WoodenWateringCanItem;
 import ru.kasper.woodenwateringcan.interaction.WateringCanPickupHandler;
+import ru.kasper.woodenwateringcan.interaction.WoodenBucketFillHandler;
+import ru.kasper.woodenwateringcan.item.WoodenWateringCanItem;
 import ru.kasper.woodenwateringcan.world.FarmlandDryingManager;
 
 public final class WoodenWateringCanMod implements ModInitializer {
@@ -61,6 +62,7 @@ public final class WoodenWateringCanMod implements ModInitializer {
         ModComponents.initialize();
         FarmlandDryingManager.initialize();
         WateringCanPickupHandler.initialize();
+        WoodenBucketFillHandler.initialize();
 
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.TOOLS_AND_UTILITIES)
                 .register(output -> output.accept(WOODEN_WATERING_CAN_ITEM));
