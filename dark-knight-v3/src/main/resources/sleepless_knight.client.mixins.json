@@ -1,0 +1,11 @@
+{
+  "required": true,
+  "package": "com.kasper.sleeplessknight.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "client": [
+    "GuiBossOverlayAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
