@@ -22,18 +22,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Dark Knight boss-like monster.
- *
- * The boss bar is deliberately combat-driven rather than permanently visible:
- * - when the knight has a player target, the bar appears;
- * - if aggro is lost, the same bar remains for 10 seconds;
- * - if combat resumes during that grace period, the timer is refreshed;
- * - after 10 seconds without aggro, the bar disappears.
- *
- * The bar has PLAY_BOSS_MUSIC enabled. The client music manager uses that flag,
- * so the custom fight track exists for exactly the same window as this bar.
- */
+/** Dark Knight boss-like monster. */
 public class DarkKnightEntity extends WitherSkeleton {
     private static final Identifier LIGHTNING_ID = Identifier.fromNamespaceAndPath("minecraft", "lightning_bolt");
     private static final long COMBAT_GRACE_TICKS = 10L * 20L;
@@ -42,9 +31,20 @@ public class DarkKnightEntity extends WitherSkeleton {
     private @Nullable ServerPlayer bossPlayer;
     private long lastCombatTick = Long.MIN_VALUE;
 
+    // Extra pursuit watchdog. Vanilla melee navigation occasionally gives up on a
+    // path for a few seconds around corners, water edges and small obstacles.
+    // We only intervene while the target is clearly outside melee range.
+    private int chaseRepathCooldown;
+    private int chaseSampleTicks;
+    private int chaseStalledTicks;
+    private double lastChaseX;
+    private double lastChaseZ;
+
     public DarkKnightEntity(EntityType<? extends WitherSkeleton> entityType, Level level) {
         super(entityType, level);
         this.setPersistenceRequired();
+        this.lastChaseX = this.getX();
+        this.lastChaseZ = this.getZ();
 
         this.bossEvent = new ServerBossEvent(
                 this.getUUID(),
@@ -69,7 +69,83 @@ public class DarkKnightEntity extends WitherSkeleton {
 
         if (this.level() instanceof ServerLevel) {
             updateCombatBossBar();
+            updatePersistentChase();
         }
+    }
+
+    /**
+     * Keeps the knight actively walking toward an aggro target instead of
+     * occasionally freezing after vanilla pathfinding abandons a path.
+     * This does not teleport him and does not speed up normal movement.
+     */
+    private void updatePersistentChase() {
+        if (!(this.getTarget() instanceof ServerPlayer target) || !target.isAlive()) {
+            resetChaseWatchdog();
+            return;
+        }
+
+        double distanceSqr = this.distanceToSqr(target);
+
+        // Close enough for the normal melee attack goal. Do not fight with its
+        // attack positioning or make the knight jitter around the player.
+        if (distanceSqr <= 16.0D) {
+            chaseStalledTicks = 0;
+            chaseSampleTicks = 0;
+            lastChaseX = this.getX();
+            lastChaseZ = this.getZ();
+            return;
+        }
+
+        if (chaseRepathCooldown > 0) {
+            chaseRepathCooldown--;
+        }
+
+        // Refresh the path regularly, and immediately if vanilla navigation has
+        // already decided that its path is finished.
+        if (chaseRepathCooldown <= 0 || this.getNavigation().isDone()) {
+            this.getNavigation().moveTo(target, 1.0D);
+            chaseRepathCooldown = 10;
+        }
+
+        chaseSampleTicks++;
+        if (chaseSampleTicks >= 10) {
+            double dx = this.getX() - lastChaseX;
+            double dz = this.getZ() - lastChaseZ;
+            double movedSqr = dx * dx + dz * dz;
+
+            if (movedSqr < 0.01D) {
+                chaseStalledTicks += chaseSampleTicks;
+            } else {
+                chaseStalledTicks = 0;
+            }
+
+            lastChaseX = this.getX();
+            lastChaseZ = this.getZ();
+            chaseSampleTicks = 0;
+        }
+
+        // If he has wanted to chase for about a second but has barely moved,
+        // throw away the stale path and force a fresh pursuit. A small jump is
+        // enough to clear common one-block lips without turning him into a
+        // jumping mob.
+        if (chaseStalledTicks >= 20) {
+            this.getNavigation().stop();
+            boolean foundPath = this.getNavigation().moveTo(target, 1.0D);
+            if (!foundPath || this.horizontalCollision) {
+                this.getJumpControl().jump();
+                this.getMoveControl().setWantedPosition(target.getX(), target.getY(), target.getZ(), 1.0D);
+            }
+            chaseStalledTicks = 0;
+            chaseRepathCooldown = 5;
+        }
+    }
+
+    private void resetChaseWatchdog() {
+        chaseRepathCooldown = 0;
+        chaseSampleTicks = 0;
+        chaseStalledTicks = 0;
+        lastChaseX = this.getX();
+        lastChaseZ = this.getZ();
     }
 
     private void updateCombatBossBar() {
@@ -120,8 +196,6 @@ public class DarkKnightEntity extends WitherSkeleton {
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnReason, groupData);
         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(30.0);
 
-        // Natural spawn and spawn egg both get the same dry lightning entrance.
-        // The bolt is visual-only: thunder and flash, but no rain, fire or damage.
         if (level instanceof ServerLevel serverLevel) {
             EntityType<?> lightningType = BuiltInRegistries.ENTITY_TYPE.getValue(LIGHTNING_ID);
             if (lightningType != null) {
