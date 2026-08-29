@@ -7,18 +7,15 @@ import java.util.Comparator;
 import java.util.UUID;
 
 /**
- * Starts boss music when the knight sees the local player.
- * Music fades if line of sight is lost, or if the knight receives no hit for 7 seconds.
+ * Boss music follows line of sight only:
+ * while the knight can see the local player, the track stays active continuously;
+ * when line of sight is lost (or the knight disappears/dies), it fades out.
  */
 public final class DarkKnightMusicManager {
     private static final double DETECTION_RANGE = 64.0;
-    private static final long COMBAT_TIMEOUT_TICKS = 7L * 20L;
 
     private static DarkKnightBattleMusic music;
     private static UUID trackedKnight;
-    private static boolean wasVisible;
-    private static long lastCombatActivity;
-    private static int previousHurtTime;
 
     private DarkKnightMusicManager() {}
 
@@ -41,45 +38,23 @@ public final class DarkKnightMusicManager {
             return;
         }
 
+        trackedKnight = knight.getUUID();
         boolean visible = knight.hasLineOfSight(player);
-        long now = minecraft.level.getGameTime();
-        UUID id = knight.getUUID();
 
-        if (!id.equals(trackedKnight)) {
-            trackedKnight = id;
-            wasVisible = false;
-            previousHurtTime = 0;
-            lastCombatActivity = now;
-        }
-
-        if (visible && !wasVisible) {
-            // The knight has just noticed the player: start the fight track immediately.
-            lastCombatActivity = now;
-        }
-
-        if (knight.hurtTime > previousHurtTime) {
-            lastCombatActivity = now;
-        }
-        previousHurtTime = knight.hurtTime;
-
-        boolean wanted = visible && (now - lastCombatActivity <= COMBAT_TIMEOUT_TICKS);
-        wasVisible = visible;
-
-        if (wanted) {
-            // If a previous play attempt failed for any reason, retry instead of keeping
-            // a dead SoundInstance forever.
+        if (visible) {
+            // IMPORTANT: no combat timeout here. As long as the knight sees the
+            // player, the fight track remains active for any amount of time.
             if (music == null || music.isStopped() || !minecraft.getSoundManager().isActive(music)) {
                 music = new DarkKnightBattleMusic();
                 minecraft.getSoundManager().play(music);
             }
             music.setActive(true);
-        } else if (music != null && !music.isStopped()) {
-            music.setActive(false);
-        }
-
-        if (!visible) {
+        } else {
+            // Lose sight -> smooth fade-out.
+            if (music != null && !music.isStopped()) {
+                music.setActive(false);
+            }
             trackedKnight = null;
-            previousHurtTime = 0;
         }
     }
 
@@ -88,7 +63,5 @@ public final class DarkKnightMusicManager {
             music.setActive(false);
         }
         trackedKnight = null;
-        wasVisible = false;
-        previousHurtTime = 0;
     }
 }
