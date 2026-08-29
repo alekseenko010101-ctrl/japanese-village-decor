@@ -6,6 +6,8 @@ import net.minecraft.util.RandomSource;
 
 /** Spatial looping sound that follows a living Dark Knight. */
 public final class DarkKnightAmbientSound extends AbstractTickableSoundInstance {
+    private static final float AMBIENT_VOLUME = 4.0F;
+
     private final DarkKnightEntity knight;
 
     public DarkKnightAmbientSound(DarkKnightEntity knight) {
@@ -13,7 +15,10 @@ public final class DarkKnightAmbientSound extends AbstractTickableSoundInstance 
         this.knight = knight;
         this.looping = true;
         this.delay = 0;
-        this.volume = 1.0F;
+        // Intentionally much louder than a normal mob sound. Keeping this spatial
+        // means it still comes from/follows the knight, while the higher gain also
+        // makes it audible from farther away instead of disappearing in combat music.
+        this.volume = AMBIENT_VOLUME;
         this.pitch = 1.0F;
         this.relative = false;
         this.x = knight.getX();
@@ -34,5 +39,6 @@ public final class DarkKnightAmbientSound extends AbstractTickableSoundInstance 
         this.x = this.knight.getX();
         this.y = this.knight.getY();
         this.z = this.knight.getZ();
+        this.volume = AMBIENT_VOLUME;
     }
 }
