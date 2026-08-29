@@ -3,7 +3,6 @@ package com.kasper.sleeplessknight;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.Entity;
@@ -54,15 +53,6 @@ public class DarkKnightEntity extends WitherSkeleton {
                     serverLevel.addFreshEntity(bolt);
                 }
             }
-
-            serverLevel.playSound(
-                    null,
-                    this.blockPosition(),
-                    ModSounds.DARK_KNIGHT_APPEAR,
-                    SoundSource.HOSTILE,
-                    2.2F,
-                    1.0F
-            );
         }
 
         return data;
