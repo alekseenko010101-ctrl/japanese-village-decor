@@ -8,6 +8,7 @@ public final class SleeplessKnight implements ModInitializer {
     @Override
     public void onInitialize() {
         ModEntities.register();
+        ModSounds.register();
         DarkKnightItems.register();
         KnightSpawner.register();
     }
