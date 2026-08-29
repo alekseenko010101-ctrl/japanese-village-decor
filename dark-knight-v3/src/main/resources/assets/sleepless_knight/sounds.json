@@ -3,7 +3,7 @@
     "sounds": [
       {
         "name": "sleepless_knight:dark_knight_ambient",
-        "stream": true,
+        "stream": false,
         "volume": 1.0,
         "pitch": 1.0
       }
