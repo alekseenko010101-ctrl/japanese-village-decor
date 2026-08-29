@@ -1,6 +1,8 @@
 name: Dark Knight Rebuild V5.1
 
 on:
+  push:
+    branches: [ "dark-knight-rebuild-v5" ]
   workflow_dispatch:
 
 jobs:
