@@ -1,0 +1,45 @@
+name: Dark Knight Rebuild V5
+
+on:
+  push:
+    branches: [ "dark-knight-rebuild-v5" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: dark-knight-v3
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-java@v5
+        with:
+          distribution: microsoft
+          java-version: '25'
+      - uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '9.5.0'
+      - name: Prepare v5 model
+        run: python3 prepare_v5.py
+      - name: Build
+        run: gradle clean build --stacktrace
+      - name: Verify core assets
+        run: |
+          JAR=$(find build/libs -name '*.jar' ! -name '*sources*' | head -n 1)
+          test -n "$JAR"
+          jar tf "$JAR" | grep -q 'assets/sleepless_knight/textures/entity/dark_knight.png'
+          jar tf "$JAR" | grep -q 'assets/sleepless_knight/sounds/dark_knight_appear.ogg'
+          jar tf "$JAR" | grep -q 'assets/sleepless_knight/sounds.json'
+          jar tf "$JAR" | grep -q 'assets/sleepless_knight/textures/item/dark_knight_spawn_egg.png'
+      - name: Prepare source zip
+        run: |
+          mkdir -p build/export
+          zip -r build/export/sleepless-knight-5.0.0-source.zip . -x 'build/*' '.gradle/*'
+      - name: Upload JAR and source
+        uses: actions/upload-artifact@v7
+        with:
+          name: sleepless-knight-v5
+          path: |
+            dark-knight-v3/build/libs/*.jar
+            dark-knight-v3/build/export/sleepless-knight-5.0.0-source.zip
