@@ -1,4 +1,4 @@
-name: Dark Knight Rebuild V5.1
+name: Dark Knight Rebuild V5.1.1
 
 on:
   push:
@@ -28,6 +28,8 @@ jobs:
           test -n "$JAR"
           jar tf "$JAR" | grep -q 'assets/sleepless_knight/textures/entity/dark_knight.png'
           jar tf "$JAR" | grep -q 'assets/sleepless_knight/sounds.json'
+          jar tf "$JAR" | grep -q 'assets/sleepless_knight/sounds/dark_knight_battle_music.ogg'
+          jar tf "$JAR" | grep -q 'assets/sleepless_knight/sounds/dark_knight_ambient.ogg'
           jar tf "$JAR" | grep -q 'DarkKnightMusicManager.class'
           jar tf "$JAR" | grep -q 'DarkKnightBattleMusic.class'
           jar tf "$JAR" | grep -q 'DarkKnightAmbientSound.class'
@@ -35,11 +37,11 @@ jobs:
       - name: Prepare source zip
         run: |
           mkdir -p build/export
-          zip -r build/export/sleepless-knight-5.1.0-source.zip . -x 'build/*' '.gradle/*'
+          zip -r build/export/sleepless-knight-5.1.1-source.zip . -x 'build/*' '.gradle/*'
       - name: Upload JAR and source
         uses: actions/upload-artifact@v7
         with:
-          name: sleepless-knight-v51
+          name: sleepless-knight-v511
           path: |
             dark-knight-v3/build/libs/*.jar
-            dark-knight-v3/build/export/sleepless-knight-5.1.0-source.zip
+            dark-knight-v3/build/export/sleepless-knight-5.1.1-source.zip
