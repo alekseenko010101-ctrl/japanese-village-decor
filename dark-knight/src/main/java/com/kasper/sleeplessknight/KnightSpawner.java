@@ -44,7 +44,7 @@ public final class KnightSpawner {
         if (!level.getEntitiesOfClass(DarkKnightEntity.class, player.getBoundingBox().inflate(128.0)).isEmpty()) return;
 
         RandomSource random = level.getRandom();
-        if (random.nextFloat() > 0.08f) return;
+        if (random.nextFloat() > 0.08F) return;
 
         double angle = random.nextDouble() * Math.PI * 2.0;
         double distance = 25.0 + random.nextDouble() * 20.0;
@@ -54,8 +54,10 @@ public final class KnightSpawner {
 
         DarkKnightEntity knight = ModEntities.DARK_KNIGHT.create(level, EntitySpawnReason.NATURAL);
         if (knight == null) return;
-        knight.snapTo(top, random.nextFloat() * 360.0f, 0.0f);
+        knight.snapTo(top, random.nextFloat() * 360.0F, 0.0F);
         if (!level.noCollision(knight)) return;
+
+        knight.finalizeSpawn(level, level.getCurrentDifficultyAt(top), EntitySpawnReason.NATURAL, null);
         level.addFreshEntity(knight);
     }
 }
