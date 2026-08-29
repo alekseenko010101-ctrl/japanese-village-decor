@@ -1,10 +1,13 @@
 package com.kasper.sleeplessknight;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Monster;
@@ -21,7 +24,7 @@ public class DarkKnightEntity extends WitherSkeleton {
 
     @Override
     protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficulty) {
-        // Weapon is rendered as part of the custom model.
+        // The greatsword is part of the custom animated model.
     }
 
     @Override
@@ -33,6 +36,26 @@ public class DarkKnightEntity extends WitherSkeleton {
     ) {
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnReason, groupData);
         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(30.0);
+
+        // Natural spawn and spawn egg both get the same dry lightning entrance.
+        // Visual-only lightning gives thunder/flash without rain, fire or damage.
+        if (level instanceof ServerLevel serverLevel) {
+            LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(serverLevel, EntitySpawnReason.TRIGGERED);
+            if (bolt != null) {
+                bolt.snapTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
+                bolt.setVisualOnly(true);
+                serverLevel.addFreshEntity(bolt);
+            }
+            serverLevel.playSound(
+                    null,
+                    this.blockPosition(),
+                    ModSounds.DARK_KNIGHT_APPEAR,
+                    SoundSource.HOSTILE,
+                    2.2F,
+                    1.0F
+            );
+        }
+
         return data;
     }
 
@@ -42,7 +65,7 @@ public class DarkKnightEntity extends WitherSkeleton {
                 .add(Attributes.ATTACK_DAMAGE, 30.0)
                 .add(Attributes.ARMOR, 20.0)
                 .add(Attributes.ARMOR_TOUGHNESS, 8.0)
-                .add(Attributes.MOVEMENT_SPEED, 0.27)
+                .add(Attributes.MOVEMENT_SPEED, 0.18)
                 .add(Attributes.FOLLOW_RANGE, 64.0)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0);
     }
