@@ -12,6 +12,9 @@ public final class ModSounds {
     private static final Identifier BATTLE_MUSIC_ID = Identifier.fromNamespaceAndPath(
             SleeplessKnight.MOD_ID, "dark_knight_battle_music"
     );
+    private static final Identifier COMBAT_CRY_ID = Identifier.fromNamespaceAndPath(
+            SleeplessKnight.MOD_ID, "dark_knight_combat_cry"
+    );
 
     public static final SoundEvent DARK_KNIGHT_AMBIENT = Registry.register(
             BuiltInRegistries.SOUND_EVENT,
@@ -23,6 +26,12 @@ public final class ModSounds {
             BuiltInRegistries.SOUND_EVENT,
             BATTLE_MUSIC_ID,
             SoundEvent.createVariableRangeEvent(BATTLE_MUSIC_ID)
+    );
+
+    public static final SoundEvent DARK_KNIGHT_COMBAT_CRY = Registry.register(
+            BuiltInRegistries.SOUND_EVENT,
+            COMBAT_CRY_ID,
+            SoundEvent.createVariableRangeEvent(COMBAT_CRY_ID)
     );
 
     private ModSounds() {}
