@@ -9,5 +9,6 @@ public final class SleeplessKnightClient implements ClientModInitializer {
     public void onInitializeClient() {
         EntityRendererRegistry.register(ModEntities.DARK_KNIGHT, DarkKnightRenderer::new);
         ClientTickEvents.END_CLIENT_TICK.register(DarkKnightMusicManager::tick);
+        ClientTickEvents.END_CLIENT_TICK.register(DarkKnightAmbientManager::tick);
     }
 }
