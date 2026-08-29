@@ -1,55 +1,94 @@
 package com.kasper.sleeplessknight;
 
-import com.kasper.sleeplessknight.mixin.GuiBossOverlayAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.AABB;
 
+import java.util.Comparator;
+import java.util.UUID;
+
 /**
- * The custom track follows the Dark Knight boss bar.
- *
- * Server-side combat decides when the bar exists. The bar itself has
- * PLAY_BOSS_MUSIC enabled, so the client uses that exact same state:
- * bar present -> music active; bar gone -> smooth fade-out.
+ * Keeps the fight audio active while the Dark Knight is engaged.
+ * A 10-second grace period prevents brief line-of-sight breaks from restarting it.
  */
 public final class DarkKnightMusicManager {
-    private static final double KNIGHT_NEARBY_RANGE = 96.0;
+    private static final double DETECTION_RANGE = 96.0;
+    private static final double PLAYER_HIT_CONFIRM_RANGE_SQR = 12.0 * 12.0;
+    private static final long COMBAT_GRACE_TICKS = 10L * 20L;
 
     private static DarkKnightBattleMusic music;
+    private static UUID trackedKnight;
+    private static long lastFightActivity = Long.MIN_VALUE;
+    private static int previousKnightHurtTime;
+    private static int previousPlayerHurtTime;
 
     private DarkKnightMusicManager() {}
 
     public static void tick(Minecraft minecraft) {
         if (minecraft.level == null || minecraft.player == null) {
-            fadeOut();
+            stopAndReset();
             return;
         }
 
         var player = minecraft.player;
-        AABB search = player.getBoundingBox().inflate(KNIGHT_NEARBY_RANGE);
+        long now = minecraft.level.getGameTime();
+        AABB search = player.getBoundingBox().inflate(DETECTION_RANGE);
 
-        boolean knightNearby = minecraft.level.getEntitiesOfClass(DarkKnightEntity.class, search).stream()
-                .anyMatch(k -> k.isAlive()
-                        && k.distanceToSqr(player) <= KNIGHT_NEARBY_RANGE * KNIGHT_NEARBY_RANGE);
+        DarkKnightEntity knight = minecraft.level.getEntitiesOfClass(DarkKnightEntity.class, search).stream()
+                .filter(DarkKnightEntity::isAlive)
+                .filter(k -> k.distanceToSqr(player) <= DETECTION_RANGE * DETECTION_RANGE)
+                .min(Comparator.comparingDouble(k -> k.distanceToSqr(player)))
+                .orElse(null);
 
-        boolean bossBarCombatActive = knightNearby
-                && ((GuiBossOverlayAccessor) minecraft.gui)
-                .sleeplessKnight$getBossOverlay()
-                .shouldPlayMusic();
+        if (knight != null) {
+            UUID id = knight.getUUID();
+            if (!id.equals(trackedKnight)) {
+                trackedKnight = id;
+                previousKnightHurtTime = knight.hurtTime;
+                previousPlayerHurtTime = player.hurtTime;
+            }
 
-        if (bossBarCombatActive) {
+            if (knight.hasLineOfSight(player)) {
+                lastFightActivity = now;
+            }
+
+            if (knight.hurtTime > previousKnightHurtTime) {
+                lastFightActivity = now;
+            }
+            previousKnightHurtTime = knight.hurtTime;
+
+            if (player.hurtTime > previousPlayerHurtTime
+                    && knight.distanceToSqr(player) <= PLAYER_HIT_CONFIRM_RANGE_SQR) {
+                lastFightActivity = now;
+            }
+            previousPlayerHurtTime = player.hurtTime;
+        }
+
+        boolean fightStillWarm = lastFightActivity != Long.MIN_VALUE
+                && now - lastFightActivity <= COMBAT_GRACE_TICKS;
+
+        if (fightStillWarm) {
             if (music == null || music.isStopped() || !minecraft.getSoundManager().isActive(music)) {
                 music = new DarkKnightBattleMusic();
                 minecraft.getSoundManager().play(music);
             }
             music.setActive(true);
         } else {
-            fadeOut();
+            if (music != null && !music.isStopped()) {
+                music.setActive(false);
+            }
+            trackedKnight = null;
+            previousKnightHurtTime = 0;
+            previousPlayerHurtTime = 0;
         }
     }
 
-    private static void fadeOut() {
+    private static void stopAndReset() {
         if (music != null && !music.isStopped()) {
             music.setActive(false);
         }
+        trackedKnight = null;
+        lastFightActivity = Long.MIN_VALUE;
+        previousKnightHurtTime = 0;
+        previousPlayerHurtTime = 0;
     }
 }
