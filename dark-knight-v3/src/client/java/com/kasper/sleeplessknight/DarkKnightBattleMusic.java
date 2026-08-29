@@ -14,7 +14,7 @@ public final class DarkKnightBattleMusic extends AbstractTickableSoundInstance {
     private boolean active = true;
 
     public DarkKnightBattleMusic() {
-        super(ModSounds.DARK_KNIGHT_BATTLE_MUSIC, SoundSource.MUSIC, RandomSource.create());
+        super(ModSounds.DARK_KNIGHT_BATTLE_MUSIC, SoundSource.HOSTILE, RandomSource.create());
         this.looping = true;
         this.delay = 0;
         this.volume = 0.0F;
