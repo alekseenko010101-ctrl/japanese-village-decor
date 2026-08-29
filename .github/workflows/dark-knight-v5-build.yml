@@ -21,7 +21,9 @@ jobs:
         with:
           gradle-version: '9.5.0'
       - name: Prepare 5.2.8
-        run: python prepare_v528.py
+        run: |
+          python prepare_v528.py
+          python patch_v528_particle.py
       - name: Build
         run: gradle clean build --stacktrace
       - name: Verify compiled mod
