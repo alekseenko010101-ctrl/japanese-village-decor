@@ -3,105 +3,54 @@ package com.kasper.sleeplessknight;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.AABB;
 
-import java.util.Comparator;
-import java.util.UUID;
-
 /**
- * Boss music starts when the knight engages the local player and stays continuous.
- * If aggro/line of sight is lost, a 10-second combat grace period keeps the same
- * track playing so brief LOS breaks do not restart the music. Hits during that
- * grace period refresh the timer. After 10 seconds without aggro or combat activity,
- * the music fades out smoothly.
+ * The custom track follows the Dark Knight boss bar.
+ *
+ * Server-side combat decides when the bar exists. The bar itself has
+ * PLAY_BOSS_MUSIC enabled, so the client can use the exact same state:
+ * bar present -> music active; bar gone -> smooth fade-out.
  */
 public final class DarkKnightMusicManager {
-    private static final double DETECTION_RANGE = 64.0;
-    private static final double PLAYER_HIT_CONFIRM_RANGE_SQR = 12.0 * 12.0;
-    private static final long COMBAT_GRACE_TICKS = 10L * 20L;
+    private static final double KNIGHT_NEARBY_RANGE = 96.0;
 
     private static DarkKnightBattleMusic music;
-    private static UUID trackedKnight;
-    private static long lastFightActivity = Long.MIN_VALUE;
-    private static int previousKnightHurtTime;
-    private static int previousPlayerHurtTime;
 
     private DarkKnightMusicManager() {}
 
     public static void tick(Minecraft minecraft) {
         if (minecraft.level == null || minecraft.player == null) {
-            stopAndReset();
+            fadeOut();
             return;
         }
 
         var player = minecraft.player;
-        long now = minecraft.level.getGameTime();
-        AABB search = player.getBoundingBox().inflate(DETECTION_RANGE);
+        AABB search = player.getBoundingBox().inflate(KNIGHT_NEARBY_RANGE);
 
-        DarkKnightEntity knight = minecraft.level.getEntitiesOfClass(DarkKnightEntity.class, search).stream()
+        boolean knightNearby = !minecraft.level.getEntitiesOfClass(DarkKnightEntity.class, search).stream()
                 .filter(DarkKnightEntity::isAlive)
-                .filter(k -> k.distanceToSqr(player) <= DETECTION_RANGE * DETECTION_RANGE)
-                .min(Comparator.comparingDouble(k -> k.distanceToSqr(player)))
-                .orElse(null);
+                .filter(k -> k.distanceToSqr(player) <= KNIGHT_NEARBY_RANGE * KNIGHT_NEARBY_RANGE)
+                .toList()
+                .isEmpty();
 
-        if (knight != null) {
-            UUID id = knight.getUUID();
-            if (!id.equals(trackedKnight)) {
-                trackedKnight = id;
-                previousKnightHurtTime = knight.hurtTime;
-                previousPlayerHurtTime = player.hurtTime;
-            }
+        // Our ServerBossEvent is configured with PLAY_BOSS_MUSIC=true only while
+        // the combat bar is attached to the player. This means the music and HP
+        // bar share one authoritative combat window, including the 10-second grace.
+        boolean bossBarCombatActive = knightNearby && minecraft.gui.getBossOverlay().shouldPlayMusic();
 
-            // In this mob's AI, seeing the player is the moment it engages and starts
-            // pursuing. While this is true the fight is unquestionably active.
-            boolean aggroVisible = knight.hasLineOfSight(player);
-            if (aggroVisible) {
-                lastFightActivity = now;
-            }
-
-            // Player hitting the knight keeps combat alive even if LOS is temporarily
-            // broken around a wall/tree/corner.
-            if (knight.hurtTime > previousKnightHurtTime) {
-                lastFightActivity = now;
-            }
-            previousKnightHurtTime = knight.hurtTime;
-
-            // If the player gets hit while close to the tracked knight, count that as
-            // ongoing combat too. This prevents a fight from going silent during a
-            // brief visual obstruction while the knight is still landing attacks.
-            if (player.hurtTime > previousPlayerHurtTime
-                    && knight.distanceToSqr(player) <= PLAYER_HIT_CONFIRM_RANGE_SQR) {
-                lastFightActivity = now;
-            }
-            previousPlayerHurtTime = player.hurtTime;
-        }
-
-        boolean fightStillWarm = lastFightActivity != Long.MIN_VALUE
-                && now - lastFightActivity <= COMBAT_GRACE_TICKS;
-
-        if (fightStillWarm) {
-            // Reuse one looping sound instance. Brief LOS/aggro drops never restart
-            // the track from the beginning; they only run down the 10-second grace.
+        if (bossBarCombatActive) {
             if (music == null || music.isStopped() || !minecraft.getSoundManager().isActive(music)) {
                 music = new DarkKnightBattleMusic();
                 minecraft.getSoundManager().play(music);
             }
             music.setActive(true);
         } else {
-            if (music != null && !music.isStopped()) {
-                music.setActive(false);
-            }
-            trackedKnight = null;
-            previousKnightHurtTime = 0;
-            previousPlayerHurtTime = 0;
+            fadeOut();
         }
     }
 
-    private static void stopAndReset() {
+    private static void fadeOut() {
         if (music != null && !music.isStopped()) {
             music.setActive(false);
         }
-        trackedKnight = null;
-        lastFightActivity = Long.MIN_VALUE;
-        previousKnightHurtTime = 0;
-        previousPlayerHurtTime = 0;
     }
 }
