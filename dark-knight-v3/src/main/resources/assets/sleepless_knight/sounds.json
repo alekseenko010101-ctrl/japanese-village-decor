@@ -9,5 +9,15 @@
         "pitch": 1.0
       }
     ]
+  },
+  "dark_knight_battle_music": {
+    "sounds": [
+      {
+        "name": "sleepless_knight:dark_knight_battle_music",
+        "stream": true,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
   }
 }
