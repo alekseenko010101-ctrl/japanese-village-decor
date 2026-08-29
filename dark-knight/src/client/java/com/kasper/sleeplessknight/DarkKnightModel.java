@@ -100,8 +100,8 @@ public final class DarkKnightModel extends SkeletonModel<SkeletonRenderState> {
         PartDefinition sword = rightArm.addOrReplaceChild(
                 "greatsword",
                 CubeListBuilder.create()
-                        .texOffs(192, 64).addBox(-0.9F, -1.0F, -0.9F, 1.8F, 7.0F, 1.8F)
-                        .texOffs(208, 64).addBox(-5.0F, 5.0F, -1.0F, 10.0F, 1.8F, 2.0F)
+                        .texOffs(192, 128).addBox(-0.9F, -1.0F, -0.9F, 1.8F, 7.0F, 1.8F)
+                        .texOffs(208, 128).addBox(-5.0F, 5.0F, -1.0F, 10.0F, 1.8F, 2.0F)
                         .texOffs(0, 160).addBox(-2.3F, 6.5F, -0.7F, 4.6F, 20.0F, 1.4F)
                         .texOffs(32, 160).addBox(-1.4F, 26.0F, -0.6F, 2.8F, 4.0F, 1.2F),
                 PartPose.offsetAndRotation(0.0F, 7.0F, 0.0F, 0.08F, 0.0F, -0.52F)
