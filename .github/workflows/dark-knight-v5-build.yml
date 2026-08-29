@@ -1,4 +1,4 @@
-name: Dark Knight Rebuild V5.1.1
+name: Dark Knight Rebuild V5.2.6
 
 on:
   push:
@@ -20,6 +20,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: '9.5.0'
+      - name: Prepare 5.2.6
+        run: python prepare_v526.py
       - name: Build
         run: gradle clean build --stacktrace
       - name: Verify compiled mod
@@ -27,6 +29,7 @@ jobs:
           JAR=$(find build/libs -name '*.jar' ! -name '*sources*' | head -n 1)
           test -n "$JAR"
           jar tf "$JAR" | grep -q 'assets/sleepless_knight/textures/entity/dark_knight.png'
+          jar tf "$JAR" | grep -q 'assets/sleepless_knight/textures/item/dark_knight_spawn_egg.png'
           jar tf "$JAR" | grep -q 'assets/sleepless_knight/sounds.json'
           jar tf "$JAR" | grep -q 'DarkKnightMusicManager.class'
           jar tf "$JAR" | grep -q 'DarkKnightBattleMusic.class'
@@ -35,11 +38,11 @@ jobs:
       - name: Prepare source zip
         run: |
           mkdir -p build/export
-          zip -r build/export/sleepless-knight-5.1.1-source.zip . -x 'build/*' '.gradle/*'
+          zip -r build/export/sleepless-knight-5.2.6-source.zip . -x 'build/*' '.gradle/*'
       - name: Upload JAR and source
         uses: actions/upload-artifact@v7
         with:
-          name: sleepless-knight-v511
+          name: sleepless-knight-v526
           path: |
             dark-knight-v3/build/libs/*.jar
-            dark-knight-v3/build/export/sleepless-knight-5.1.1-source.zip
+            dark-knight-v3/build/export/sleepless-knight-5.2.6-source.zip
