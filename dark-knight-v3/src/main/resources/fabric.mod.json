@@ -10,6 +10,12 @@
     "main": ["com.kasper.sleeplessknight.SleeplessKnight"],
     "client": ["com.kasper.sleeplessknight.SleeplessKnightClient"]
   },
+  "mixins": [
+    {
+      "config": "sleepless_knight.client.mixins.json",
+      "environment": "client"
+    }
+  ],
   "depends": {
     "fabricloader": ">=0.19.3",
     "minecraft": "~26.2",
