@@ -49,9 +49,11 @@ public final class DarkKnightMusicManager {
             trackedKnight = id;
             wasVisible = false;
             previousHurtTime = 0;
+            lastCombatActivity = now;
         }
 
         if (visible && !wasVisible) {
+            // The knight has just noticed the player: start the fight track immediately.
             lastCombatActivity = now;
         }
 
@@ -64,7 +66,9 @@ public final class DarkKnightMusicManager {
         wasVisible = visible;
 
         if (wanted) {
-            if (music == null || music.isStopped()) {
+            // If a previous play attempt failed for any reason, retry instead of keeping
+            // a dead SoundInstance forever.
+            if (music == null || music.isStopped() || !minecraft.getSoundManager().isActive(music)) {
                 music = new DarkKnightBattleMusic();
                 minecraft.getSoundManager().play(music);
             }
