@@ -1,4 +1,4 @@
-name: Dark Knight Rebuild V5.3.0
+name: Dark Knight Rebuild V5.4.0
 
 on:
   push:
@@ -20,10 +20,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: '9.5.0'
-      - name: Prepare 5.3.0
-        run: |
-          python prepare_v530.py
-          python patch_v528_particle.py
+      - name: Prepare 5.4.0
+        run: python prepare_v540.py
       - name: Build
         run: gradle clean build --stacktrace
       - name: Verify compiled mod
@@ -31,21 +29,22 @@ jobs:
           JAR=$(find build/libs -name '*.jar' ! -name '*sources*' | head -n 1)
           test -n "$JAR"
           jar tf "$JAR" | grep -q 'assets/sleepless_knight/textures/entity/dark_knight.png'
+          jar tf "$JAR" | grep -q 'assets/sleepless_knight/textures/effect/dark_knight_fog.png'
           jar tf "$JAR" | grep -q 'assets/sleepless_knight/textures/item/dark_knight_spawn_egg.png'
           jar tf "$JAR" | grep -q 'assets/sleepless_knight/sounds.json'
+          jar tf "$JAR" | grep -q 'DarkKnightRenderer.class'
           jar tf "$JAR" | grep -q 'DarkKnightMusicManager.class'
-          jar tf "$JAR" | grep -q 'DarkKnightFogManager.class'
           jar tf "$JAR" | grep -q 'DarkKnightBattleMusic.class'
           jar tf "$JAR" | grep -q 'DarkKnightAmbientSound.class'
           jar tf "$JAR" | grep -q 'DarkKnightAmbientManager.class'
       - name: Prepare source zip
         run: |
           mkdir -p build/export
-          zip -r build/export/sleepless-knight-5.3.0-source.zip . -x 'build/*' '.gradle/*'
+          zip -r build/export/sleepless-knight-5.4.0-source.zip . -x 'build/*' '.gradle/*'
       - name: Upload JAR and source
         uses: actions/upload-artifact@v7
         with:
-          name: sleepless-knight-v530
+          name: sleepless-knight-v540
           path: |
             dark-knight-v3/build/libs/*.jar
-            dark-knight-v3/build/export/sleepless-knight-5.3.0-source.zip
+            dark-knight-v3/build/export/sleepless-knight-5.4.0-source.zip
