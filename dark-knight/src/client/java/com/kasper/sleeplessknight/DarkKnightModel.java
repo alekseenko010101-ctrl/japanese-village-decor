@@ -38,8 +38,8 @@ public final class DarkKnightModel extends SkeletonModel<SkeletonRenderState> {
         );
         head.addOrReplaceChild(
                 "visor",
-                CubeListBuilder.create().texOffs(120, 0).addBox(-3.4F, -1.0F, -0.25F, 6.8F, 2.0F, 0.5F),
-                PartPose.offset(0.0F, -5.2F, -4.55F)
+                CubeListBuilder.create().texOffs(120, 0).addBox(-3.4F, -1.0F, -0.075F, 6.8F, 2.0F, 0.15F),
+                PartPose.offset(0.0F, -5.2F, -4.62F)
         );
         root.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
 
@@ -68,18 +68,18 @@ public final class DarkKnightModel extends SkeletonModel<SkeletonRenderState> {
         );
         body.addOrReplaceChild(
                 "rune_vertical",
-                CubeListBuilder.create().texOffs(192, 0).addBox(-0.55F, -3.0F, -0.2F, 1.1F, 6.0F, 0.4F),
-                PartPose.offset(0.0F, 5.5F, -3.05F)
+                CubeListBuilder.create().texOffs(192, 0).addBox(-0.55F, -3.0F, -0.06F, 1.1F, 6.0F, 0.12F),
+                PartPose.offset(0.0F, 5.5F, -3.10F)
         );
         body.addOrReplaceChild(
                 "rune_cross",
-                CubeListBuilder.create().texOffs(208, 0).addBox(-3.0F, -0.55F, -0.2F, 6.0F, 1.1F, 0.4F),
-                PartPose.offset(0.0F, 4.6F, -3.06F)
+                CubeListBuilder.create().texOffs(208, 0).addBox(-3.0F, -0.55F, -0.06F, 6.0F, 1.1F, 0.12F),
+                PartPose.offset(0.0F, 4.6F, -3.10F)
         );
         body.addOrReplaceChild(
                 "rune_lower",
-                CubeListBuilder.create().texOffs(224, 0).addBox(-1.8F, -0.45F, -0.2F, 3.6F, 0.9F, 0.4F),
-                PartPose.offset(0.0F, 7.3F, -3.07F)
+                CubeListBuilder.create().texOffs(224, 0).addBox(-1.8F, -0.45F, -0.06F, 3.6F, 0.9F, 0.12F),
+                PartPose.offset(0.0F, 7.3F, -3.10F)
         );
 
         PartDefinition rightArm = root.addOrReplaceChild(
@@ -95,7 +95,7 @@ public final class DarkKnightModel extends SkeletonModel<SkeletonRenderState> {
                 CubeListBuilder.create().texOffs(144, 64)
                         .addBox(-4.0F, -2.0F, -3.5F, 7.0F, 4.0F, 7.0F)
                         .texOffs(176, 64).addBox(-4.4F, 1.2F, -3.1F, 7.4F, 1.5F, 6.2F),
-                PartPose.offset(0.0F, -1.0F, 0.0F)
+                PartPose.offset(-0.35F, -1.0F, 0.0F)
         );
         PartDefinition sword = rightArm.addOrReplaceChild(
                 "greatsword",
@@ -125,7 +125,7 @@ public final class DarkKnightModel extends SkeletonModel<SkeletonRenderState> {
                 CubeListBuilder.create().texOffs(144, 96).mirror()
                         .addBox(-3.0F, -2.0F, -3.5F, 7.0F, 4.0F, 7.0F)
                         .texOffs(176, 96).mirror().addBox(-3.0F, 1.2F, -3.1F, 7.4F, 1.5F, 6.2F),
-                PartPose.offset(0.0F, -1.0F, 0.0F)
+                PartPose.offset(0.35F, -1.0F, 0.0F)
         );
 
         root.addOrReplaceChild(
