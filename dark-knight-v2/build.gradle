@@ -22,17 +22,17 @@ dependencies {
     implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 }
 
+def generateKnightAssets = tasks.register('generateKnightAssets', Exec) {
+    workingDir projectDir
+    commandLine 'python3', 'generate_assets.py'
+}
+
 processResources {
-    dependsOn tasks.named('generateKnightAssets')
+    dependsOn generateKnightAssets
     inputs.property "version", project.version
     filesMatching("fabric.mod.json") {
         expand "version": project.version
     }
-}
-
-tasks.register('generateKnightAssets', Exec) {
-    workingDir projectDir
-    commandLine 'python3', 'generate_assets.py'
 }
 
 tasks.withType(JavaCompile).configureEach {
