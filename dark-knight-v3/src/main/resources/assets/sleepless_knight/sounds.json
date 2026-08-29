@@ -1,9 +1,8 @@
 {
-  "dark_knight_appear": {
-    "subtitle": "subtitles.sleepless_knight.dark_knight_appear",
+  "dark_knight_ambient": {
     "sounds": [
       {
-        "name": "sleepless_knight:dark_knight_appear",
+        "name": "sleepless_knight:dark_knight_ambient",
         "stream": true,
         "volume": 1.0,
         "pitch": 1.0
