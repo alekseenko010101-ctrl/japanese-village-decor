@@ -18,5 +18,15 @@
         "pitch": 1.0
       }
     ]
+  },
+  "dark_knight_combat_cry": {
+    "sounds": [
+      {
+        "name": "sleepless_knight:dark_knight_combat_cry",
+        "stream": false,
+        "volume": 1.7,
+        "pitch": 1.0
+      }
+    ]
   }
 }
