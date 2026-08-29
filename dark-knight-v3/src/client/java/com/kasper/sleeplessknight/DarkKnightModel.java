@@ -28,60 +28,69 @@ public final class DarkKnightModel extends SkeletonModel<SkeletonRenderState> {
         MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0.0F);
         PartDefinition root = mesh.getRoot();
 
+        // Rebuilt great helm: shorter, wider and with a real open T-shaped face gap.
+        // The inner head is recessed so the eye/face slit reads as a dark void instead of a flat plate.
         PartDefinition head = root.addOrReplaceChild("head",
                 CubeListBuilder.create().texOffs(0, 0)
-                        .addBox(-2.85F, -8.10F, -2.85F, 5.70F, 7.85F, 5.70F),
+                        .addBox(-2.70F, -7.05F, -2.60F, 5.40F, 6.55F, 5.20F),
                 PartPose.ZERO);
         root.addOrReplaceChild("hat", CubeListBuilder.create(), PartPose.ZERO);
 
+        // Side and rear shell. These stop before the front plane so they cannot cover the T slit.
         head.addOrReplaceChild("helmet_back",
                 CubeListBuilder.create().texOffs(40, 0)
-                        .addBox(-3.75F, -8.70F, -0.55F, 7.50F, 8.85F, 1.10F),
-                PartPose.offset(0.0F, 0.0F, 3.35F));
+                        .addBox(-3.65F, -7.35F, -0.58F, 7.30F, 7.45F, 1.16F),
+                PartPose.offset(0.0F, 0.0F, 3.05F));
         head.addOrReplaceChild("helmet_left_side",
                 CubeListBuilder.create().texOffs(72, 0)
-                        .addBox(-0.55F, -8.65F, -3.20F, 1.10F, 8.80F, 6.40F),
-                PartPose.offset(-3.35F, 0.0F, 0.0F));
+                        .addBox(-0.60F, -7.35F, -3.05F, 1.20F, 7.45F, 6.10F),
+                PartPose.offset(-3.30F, 0.0F, 0.0F));
         head.addOrReplaceChild("helmet_right_side",
                 CubeListBuilder.create().texOffs(72, 0)
-                        .addBox(-0.55F, -8.65F, -3.20F, 1.10F, 8.80F, 6.40F),
-                PartPose.offset(3.35F, 0.0F, 0.0F));
+                        .addBox(-0.60F, -7.35F, -3.05F, 1.20F, 7.45F, 6.10F),
+                PartPose.offset(3.30F, 0.0F, 0.0F));
+
+        // Broad flared crown from the reference, but without the old chimney-like height.
         head.addOrReplaceChild("crown",
                 CubeListBuilder.create().texOffs(104, 0)
-                        .addBox(-4.10F, -0.65F, -3.65F, 8.20F, 1.30F, 7.30F),
-                PartPose.offset(0.0F, -9.05F, 0.0F));
+                        .addBox(-4.35F, -0.62F, -3.45F, 8.70F, 1.24F, 6.90F),
+                PartPose.offset(0.0F, -7.60F, 0.0F));
         head.addOrReplaceChild("crown_flare",
                 CubeListBuilder.create().texOffs(152, 0)
-                        .addBox(-5.75F, -0.50F, -3.95F, 11.50F, 1.00F, 7.90F),
-                PartPose.offset(0.0F, -9.95F, 0.0F));
+                        .addBox(-5.65F, -0.42F, -3.78F, 11.30F, 0.84F, 7.56F),
+                PartPose.offset(0.0F, -8.30F, 0.0F));
         head.addOrReplaceChild("top_ridge",
                 CubeListBuilder.create().texOffs(216, 0)
-                        .addBox(-0.65F, -0.65F, -3.20F, 1.30F, 1.30F, 6.40F),
-                PartPose.offset(0.0F, -10.60F, 0.0F));
-        head.addOrReplaceChild("forehead",
+                        .addBox(-0.48F, -0.40F, -3.00F, 0.96F, 0.80F, 6.00F),
+                PartPose.offset(0.0F, -8.82F, 0.0F));
+
+        // Front armour is split around a genuine T-shaped opening.
+        // Horizontal eye slit: y -5.55 .. -4.80. Vertical slit: x -0.62 .. 0.62 down to the chin.
+        head.addOrReplaceChild("brow_left",
                 CubeListBuilder.create().texOffs(248, 0)
-                        .addBox(-3.15F, -0.70F, -0.55F, 6.30F, 1.40F, 1.10F),
-                PartPose.offset(0.0F, -6.65F, -3.38F));
-        head.addOrReplaceChild("nose_guard",
-                CubeListBuilder.create().texOffs(280, 0)
-                        .addBox(-0.48F, -2.55F, -0.55F, 0.96F, 5.10F, 1.10F),
-                PartPose.offset(0.0F, -3.60F, -3.40F));
+                        .addBox(-1.45F, -0.43F, -0.52F, 2.90F, 0.86F, 1.04F),
+                PartPose.offset(-1.95F, -6.05F, -3.12F));
+        head.addOrReplaceChild("brow_right",
+                CubeListBuilder.create().texOffs(248, 0)
+                        .addBox(-1.45F, -0.43F, -0.52F, 2.90F, 0.86F, 1.04F),
+                PartPose.offset(1.95F, -6.05F, -3.12F));
+
         head.addOrReplaceChild("left_face_plate",
                 CubeListBuilder.create().texOffs(296, 0)
-                        .addBox(-1.18F, -2.00F, -0.52F, 2.36F, 4.00F, 1.04F),
-                PartPose.offsetAndRotation(-2.08F, -2.65F, -3.38F, 0.0F, -0.04F, 0.04F));
+                        .addBox(-1.40F, -1.90F, -0.50F, 2.80F, 3.80F, 1.00F),
+                PartPose.offsetAndRotation(-2.00F, -2.85F, -3.10F, 0.0F, -0.025F, 0.018F));
         head.addOrReplaceChild("right_face_plate",
                 CubeListBuilder.create().texOffs(296, 0)
-                        .addBox(-1.18F, -2.00F, -0.52F, 2.36F, 4.00F, 1.04F),
-                PartPose.offsetAndRotation(2.08F, -2.65F, -3.38F, 0.0F, 0.04F, -0.04F));
+                        .addBox(-1.40F, -1.90F, -0.50F, 2.80F, 3.80F, 1.00F),
+                PartPose.offsetAndRotation(2.00F, -2.85F, -3.10F, 0.0F, 0.025F, -0.018F));
         head.addOrReplaceChild("left_jaw",
                 CubeListBuilder.create().texOffs(328, 0)
-                        .addBox(-1.28F, -0.60F, -0.50F, 2.56F, 1.20F, 1.00F),
-                PartPose.offset(-2.02F, -0.20F, -3.25F));
+                        .addBox(-1.42F, -0.60F, -0.48F, 2.84F, 1.20F, 0.96F),
+                PartPose.offset(-2.00F, -0.28F, -3.04F));
         head.addOrReplaceChild("right_jaw",
                 CubeListBuilder.create().texOffs(328, 0)
-                        .addBox(-1.28F, -0.60F, -0.50F, 2.56F, 1.20F, 1.00F),
-                PartPose.offset(2.02F, -0.20F, -3.25F));
+                        .addBox(-1.42F, -0.60F, -0.48F, 2.84F, 1.20F, 0.96F),
+                PartPose.offset(2.00F, -0.28F, -3.04F));
 
         PartDefinition body = root.addOrReplaceChild("body",
                 CubeListBuilder.create().texOffs(0, 80)
@@ -177,7 +186,7 @@ public final class DarkKnightModel extends SkeletonModel<SkeletonRenderState> {
                         .texOffs(288, 208).addBox(-4.65F, 3.05F, -0.72F, 9.30F, 1.44F, 1.44F)
                         .texOffs(336, 208).addBox(-1.82F, 4.75F, -0.54F, 3.64F, 19.80F, 1.08F)
                         .texOffs(376, 208).addBox(-1.28F, 24.55F, -0.48F, 2.56F, 3.50F, 0.96F),
-                PartPose.offsetAndRotation(-0.35F, 9.25F, -0.55F, 0.10F, 0.0F, 0.48F));
+                PartPose.offsetAndRotation(-0.95F, 9.55F, -0.70F, 0.06F, 0.0F, 0.30F));
         sword.addOrReplaceChild("fuller",
                 CubeListBuilder.create().texOffs(416, 208)
                         .addBox(-0.30F, 0.0F, -0.06F, 0.60F, 17.20F, 0.12F),
@@ -251,9 +260,9 @@ public final class DarkKnightModel extends SkeletonModel<SkeletonRenderState> {
     @Override
     public void setupAnim(SkeletonRenderState state) {
         super.setupAnim(state);
-        this.rightArm.xRot = -0.32F + this.rightArm.xRot * 0.22F;
-        this.rightArm.yRot = -0.10F;
-        this.rightArm.zRot = 0.16F;
+        this.rightArm.xRot = -0.22F + this.rightArm.xRot * 0.20F;
+        this.rightArm.yRot = -0.08F;
+        this.rightArm.zRot = 0.08F;
         this.leftArm.xRot = -0.08F + this.leftArm.xRot * 0.35F;
         this.leftArm.zRot = -0.06F;
         this.body.xRot += Mth.sin(state.ageInTicks * 0.040F) * 0.007F;
