@@ -24,14 +24,15 @@ jobs:
         run: python3 prepare_v5.py
       - name: Build
         run: gradle clean build --stacktrace
-      - name: Verify core assets
+      - name: Verify compiled mod
         run: |
           JAR=$(find build/libs -name '*.jar' ! -name '*sources*' | head -n 1)
           test -n "$JAR"
           jar tf "$JAR" | grep -q 'assets/sleepless_knight/textures/entity/dark_knight.png'
-          jar tf "$JAR" | grep -q 'assets/sleepless_knight/sounds/dark_knight_appear.ogg'
           jar tf "$JAR" | grep -q 'assets/sleepless_knight/sounds.json'
           jar tf "$JAR" | grep -q 'assets/sleepless_knight/textures/item/dark_knight_spawn_egg.png'
+          jar tf "$JAR" | grep -q 'DarkKnightMusicManager.class'
+          jar tf "$JAR" | grep -q 'DarkKnightBattleMusic.class'
       - name: Prepare source zip
         run: |
           mkdir -p build/export
