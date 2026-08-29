@@ -1,4 +1,4 @@
-name: Dark Knight Rebuild V5.2.6
+name: Dark Knight Rebuild V5.2.7
 
 on:
   push:
@@ -20,8 +20,8 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: '9.5.0'
-      - name: Prepare 5.2.6
-        run: python prepare_v526.py
+      - name: Prepare 5.2.7
+        run: python prepare_v527.py
       - name: Build
         run: gradle clean build --stacktrace
       - name: Verify compiled mod
@@ -38,11 +38,11 @@ jobs:
       - name: Prepare source zip
         run: |
           mkdir -p build/export
-          zip -r build/export/sleepless-knight-5.2.6-source.zip . -x 'build/*' '.gradle/*'
+          zip -r build/export/sleepless-knight-5.2.7-source.zip . -x 'build/*' '.gradle/*'
       - name: Upload JAR and source
         uses: actions/upload-artifact@v7
         with:
-          name: sleepless-knight-v526
+          name: sleepless-knight-v527
           path: |
             dark-knight-v3/build/libs/*.jar
-            dark-knight-v3/build/export/sleepless-knight-5.2.6-source.zip
+            dark-knight-v3/build/export/sleepless-knight-5.2.7-source.zip
