@@ -48,3 +48,5 @@ jobs:
           path: |
             dark-knight-v3/build/libs/*.jar
             dark-knight-v3/build/export/sleepless-knight-5.1.0-source.zip
+
+# trigger v5.1 audio/helmet fix
