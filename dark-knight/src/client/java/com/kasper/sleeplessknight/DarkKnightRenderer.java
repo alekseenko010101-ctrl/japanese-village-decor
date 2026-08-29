@@ -13,7 +13,7 @@ public final class DarkKnightRenderer extends HumanoidMobRenderer<DarkKnightEnti
     );
 
     public DarkKnightRenderer(EntityRendererProvider.Context context) {
-        super(context, new DarkKnightModel(context.bakeLayer(SleeplessKnightClient.DARK_KNIGHT_LAYER)), 1.15F);
+        super(context, new DarkKnightModel(DarkKnightModel.createBodyLayer().bakeRoot()), 1.15F);
     }
 
     @Override
