@@ -9,6 +9,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -61,6 +62,16 @@ public class DarkKnightEntity extends WitherSkeleton {
     @Override
     protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficulty) {
         // The greatsword is part of the custom animated model.
+    }
+
+    @Override
+    public void die(DamageSource damageSource) {
+        // The entity stops ticking shortly after death, so waiting for aiStep()
+        // leaves the last boss bar packet on the client. Remove it immediately.
+        bossEvent.removeAllPlayers();
+        bossPlayer = null;
+        lastCombatTick = Long.MIN_VALUE;
+        super.die(damageSource);
     }
 
     @Override
