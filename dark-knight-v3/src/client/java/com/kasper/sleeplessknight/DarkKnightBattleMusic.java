@@ -17,10 +17,22 @@ public final class DarkKnightBattleMusic extends AbstractTickableSoundInstance {
         super(ModSounds.DARK_KNIGHT_BATTLE_MUSIC, SoundSource.HOSTILE, RandomSource.create());
         this.looping = true;
         this.delay = 0;
-        this.volume = 0.0F;
+        // Keep this just above zero so the sound engine creates a channel immediately.
+        // canStartSilent() below is the real safeguard for the fade-in start.
+        this.volume = 0.001F;
         this.pitch = 1.0F;
         this.relative = true;
         this.attenuation = SoundInstance.Attenuation.NONE;
+    }
+
+    /**
+     * Minecraft normally refuses to start a HOSTILE sound whose initial volume is zero.
+     * This boss track intentionally begins silent and fades in, so it must be allowed
+     * to create its audio channel while effectively silent.
+     */
+    @Override
+    public boolean canStartSilent() {
+        return true;
     }
 
     public void setActive(boolean active) {
