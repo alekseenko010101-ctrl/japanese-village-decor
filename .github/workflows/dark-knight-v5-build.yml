@@ -1,4 +1,4 @@
-name: Dark Knight Rebuild V5.4.1
+name: Dark Knight Rebuild V5.4.2
 
 on:
   push:
@@ -20,9 +20,9 @@ jobs:
       - uses: gradle/actions/setup-gradle@v6
         with:
           gradle-version: '9.5.0'
-      - name: Prepare 5.4.1
+      - name: Prepare 5.4.2
         run: |
-          python prepare_v541.py
+          python prepare_v542.py
           python patch_v528_particle.py
       - name: Build
         run: gradle clean build --stacktrace
@@ -42,11 +42,11 @@ jobs:
       - name: Prepare source zip
         run: |
           mkdir -p build/export
-          zip -r build/export/sleepless-knight-5.4.1-source.zip . -x 'build/*' '.gradle/*'
+          zip -r build/export/sleepless-knight-5.4.2-source.zip . -x 'build/*' '.gradle/*'
       - name: Upload JAR and source
         uses: actions/upload-artifact@v7
         with:
-          name: sleepless-knight-v541
+          name: sleepless-knight-v542
           path: |
             dark-knight-v3/build/libs/*.jar
-            dark-knight-v3/build/export/sleepless-knight-5.4.1-source.zip
+            dark-knight-v3/build/export/sleepless-knight-5.4.2-source.zip
